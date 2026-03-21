@@ -1,65 +1,114 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+import InputPanel from "@/components/InputPanel";
+import OutputPanel from "@/components/OutputPanel";
 
 export default function Home() {
+  const [content, setContent] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loadingStage, setLoadingStage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const simulateProgress = () => {
+    const stages = [
+      "Understanding the product idea...",
+      "Writing PRD...",
+      "Designing MVP Scope...",
+      "Generating Success Metrics...",
+      "Structuring Development Roadmap..."
+    ];
+
+    let currentStage = 0;
+    setLoadingStage(stages[0]);
+
+    // Switch stages roughly every 2 seconds
+    const interval = setInterval(() => {
+      currentStage++;
+      if (currentStage < stages.length) {
+        setLoadingStage(stages[currentStage]);
+      } else {
+        clearInterval(interval);
+      }
+    }, 2000);
+
+    return interval;
+  };
+
+  const handleGenerate = async (data: { idea: string; audience: string; industry: string }) => {
+    setIsLoading(true);
+    setError(null);
+    setContent(null);
+
+    const progressInterval = simulateProgress();
+
+    try {
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      const json = await response.json();
+
+      if (!response.ok) {
+        throw new Error(json.error || json.details || 'Something went wrong');
+      }
+
+      // Add a small artificial delay if the API was too fast, 
+      // just so the user sees a bit of the generating states.
+      setTimeout(() => {
+        clearInterval(progressInterval);
+        setLoadingStage(null);
+        setContent(json.result);
+        setIsLoading(false);
+      }, 1500);
+
+    } catch (err: any) {
+      clearInterval(progressInterval);
+      setLoadingStage(null);
+      setError(err.message || 'Failed to connect to the server');
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen bg-slate-100 text-slate-900 font-sans selection:bg-indigo-100 selection:text-indigo-900">
+
+      {/* Header */}
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 bg-indigo-600 text-white rounded-lg flex items-center justify-center font-bold text-lg shadow-sm">
+              AI
+            </div>
+            <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-blue-500">
+              Product Copilot
+            </h1>
+          </div>
+          <div className="flex items-center gap-4 text-sm font-medium text-slate-500">
+            <span className="hidden sm:inline-block">Built for Product Managers</span>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+      </header>
+
+      {/* Main Layout Area */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 h-[calc(100vh-4rem)] flex flex-col md:flex-row gap-6">
+
+        {/* Left Panel - Input */}
+        <section className="w-full md:w-[45%] lg:w-[40%] flex-shrink-0 flex flex-col h-full min-h-[500px]">
+          <InputPanel onGenerate={handleGenerate} isLoading={isLoading} />
+        </section>
+
+        {/* Right Panel - Output */}
+        <section className="w-full md:w-[55%] lg:w-[60%] flex-col h-full flex min-h-[600px]">
+          <OutputPanel content={content} error={error} loadingStage={loadingStage} />
+        </section>
+
       </main>
+
     </div>
   );
 }

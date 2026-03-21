@@ -1,0 +1,18 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="100" fill="url(#bgGradient)"/>
+  
+  <path d="M256 96C256 96 280 200 360 224C440 248 312 256 256 416C200 256 72 248 152 224C232 200 256 96 256 96Z" fill="url(#sparkGradient)"/>
+  <path d="M384 320C384 320 392 360 416 368C440 376 392 384 384 440C376 384 328 376 352 368C376 360 384 320 384 320Z" fill="white" fill-opacity="0.8"/>
+  <path d="M144 80C144 80 152 120 176 128C200 136 152 144 144 200C136 144 88 136 112 128C136 120 144 80 144 80Z" fill="white" fill-opacity="0.8"/>
+
+  <defs>
+    <linearGradient id="bgGradient" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F172A"/>
+      <stop offset="1" stop-color="#1E293B"/>
+    </linearGradient>
+    <linearGradient id="sparkGradient" x1="152" y1="96" x2="360" y2="416" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#60A5FA"/>
+      <stop offset="1" stop-color="#C084FC"/>
+    </linearGradient>
+  </defs>
+</svg>
